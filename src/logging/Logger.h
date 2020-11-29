@@ -9,7 +9,7 @@
 
 #define LOG(level)  BOOST_LOG_TRIVIAL(level)
 
-namespace mqtt::logging {
+namespace logging {
 
     struct LoggerProperties {
         boost::log::trivial::severity_level level;

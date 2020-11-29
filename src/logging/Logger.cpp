@@ -16,7 +16,7 @@
 
 using namespace boost;
 
-namespace mqtt::logging {
+namespace logging {
 
     BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", log::attributes::local_clock::value_type)
     BOOST_LOG_ATTRIBUTE_KEYWORD(threadId, "ThreadID", log::attributes::current_thread_id::value_type)

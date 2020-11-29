@@ -1,58 +1,33 @@
-#include <iostream>
-
-#include <boost/asio.hpp>
-
 #include "logging/Logger.h"
 
-#define BOOST_THREAD_PROVIDES_FUTURE
-
-#include <boost/thread/future.hpp>
-#include <functional>
+#include "ApplicationService.h"
 
 using namespace boost;
 using namespace boost::system;
 
 
-void onTimer(const error_code &err, asio::deadline_timer *timer, future<int> *future) {
-    if (!err) {
-        if (!future->is_ready()) {
-            LOG(info) << "Data nor ready";
-        } else {
-            LOG(info) << "Got data: " << future->get();
-        }
-
-        timer->expires_from_now(posix_time::seconds(5));
-        timer->async_wait([timer, future](const error_code &error) {
-            ::onTimer(error, timer, future);
-        });
-    }
-}
-
 int main() {
+    logging::Logger::init(logging::LoggerProperties{boost::log::trivial::debug, true, false, ""});
+
     LOG(info) << "Start application";
 
-    asio::io_service service;
+    ApplicationService service;
 
-    boost::promise<int> promise;
-
-    service.post([&promise]() {
-        LOG(info) << "Handle Promise";
-        promise.set_value(5);
+    service.execute([]() {
+        LOG(warning) << "Hello World execute";
     });
 
-    boost::asio::deadline_timer timer(service, posix_time::seconds(10));
-    auto future = promise.get_future();
-    timer.async_wait([&timer, &future](const error_code &err) {
-        ::onTimer(err, &timer, &future);
-    });
+    service.schedule([]() {
+        LOG(warning) << "Hello World schedule";
+    }, boost::posix_time::second_clock::universal_time() + PosixSeconds{3});
 
-    asio::signal_set signals(service, SIGINT, SIGTERM, SIGQUIT);
-    signals.async_wait([&timer](const error_code &error, int signalNumber) {
-        if (!error) {
-            LOG(info) << "Shutdown signal received";
-            timer.cancel();
-        }
-    });
+    service.scheduleAtFixedRate([]() {
+        LOG(warning) << "Fixed rate";
+    }, PosixSeconds {5});
+
+    service.scheduleWithFixedDelay([]() {
+        LOG(warning) << "Fixed delay";
+    }, PosixSeconds {10});
 
     service.run();
 
