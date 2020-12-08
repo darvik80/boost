@@ -8,6 +8,7 @@
 #include <boost/noncopyable.hpp>
 #include <UserDef.h>
 #include <unordered_set>
+#include <utility>
 
 class Scheduler {
 public:
@@ -20,14 +21,24 @@ public:
     virtual void scheduleWithFixedDelay(const Runnable &runnable, const PosixDuration &duration) = 0;
 };
 
+class IdleTimer {
+    const Runnable _idleCallback;
+    const PosixDuration _idleDuration;
+    DeadlineTimer _idleTimeout;
+public:
+    IdleTimer(const Runnable &idleCallback, const PosixDuration &idleDuration);
+
+    void reset();
+    void cancel();
+};
+
 class SimpleScheduler : boost::noncopyable, public Scheduler {
 private:
-    IoService &_service;
     std::unordered_set<DeadlineTimerPtr> _timers;
+    IdleTimer _idleTimer;
 public:
-    explicit SimpleScheduler(IoService &service) : _service(service) {
-
-    }
+    SimpleScheduler(const Runnable &idleCallback, const PosixDuration &idleDuration);
+    SimpleScheduler();
 
     void execute(const Runnable &runnable) override;
 

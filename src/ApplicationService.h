@@ -16,7 +16,6 @@ public:
 
 class ApplicationService : public Service, public Scheduler {
 private:
-    IoService _service;
     SimpleScheduler _scheduler;
     SignalSet _signals;
 public:

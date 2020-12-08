@@ -4,12 +4,12 @@
 
 #include "ApplicationService.h"
 #include "logging/Logger.h"
+#include "IoServiceHolder.h"
 
 using namespace boost;
 
 ApplicationService::ApplicationService()
-: _scheduler(_service)
-, _signals(_service, SIGINT, SIGTERM, SIGQUIT)
+: _signals(IoServiceHolder::get_mutable_instance(), SIGINT, SIGTERM, SIGQUIT)
 {
     _signals.async_wait([this](const ErrorCode &error, int signalNumber) {
         if (!error) {
@@ -20,11 +20,11 @@ ApplicationService::ApplicationService()
 }
 
 void ApplicationService::run() {
-    _service.run();
+    IoServiceHolder::get_mutable_instance().run();
 }
 
 void ApplicationService::post(const Runnable &runnable) {
-    _service.post(runnable);
+    IoServiceHolder::get_mutable_instance().post(runnable);
 }
 
 void ApplicationService::execute(const Runnable &runnable) {
