@@ -7,7 +7,7 @@ using namespace boost::system;
 
 
 int main() {
-    logging::Logger::init(logging::LoggerProperties{boost::log::trivial::debug, true, false, ""});
+    logging::Logger::init(logging::LoggerProperties{boost::log::trivial::info, true, false, ""});
 
     LOG(info) << "Start application";
 

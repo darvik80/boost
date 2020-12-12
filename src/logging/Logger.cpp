@@ -44,7 +44,7 @@ namespace logging {
             }
         }
 
-        strm << " <" << std::setw(7) << std::right << severity << "> ";
+        strm << " [" << std::setw(7) << std::right << severity << "] ";
         strm << "\033[36m[ " << rec[threadId] << " ]";
         strm << "\033[0m : " << rec[log::expressions::smessage];
     }

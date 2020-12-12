@@ -9,6 +9,7 @@
 #include <UserDef.h>
 #include <unordered_set>
 #include <utility>
+#include "Component.h"
 
 class Scheduler {
 public:
@@ -21,12 +22,12 @@ public:
     virtual void scheduleWithFixedDelay(const Runnable &runnable, const PosixDuration &duration) = 0;
 };
 
-class IdleTimer {
+class IdleTimer : public Component {
     const Runnable _idleCallback;
     const PosixDuration _idleDuration;
     DeadlineTimer _idleTimeout;
 public:
-    IdleTimer(const Runnable &idleCallback, const PosixDuration &idleDuration);
+    IdleTimer(std::string_view name, const Runnable &idleCallback, const PosixDuration &idleDuration);
 
     void reset();
     void cancel();
@@ -36,6 +37,9 @@ class SimpleScheduler : boost::noncopyable, public Scheduler {
 private:
     std::unordered_set<DeadlineTimerPtr> _timers;
     IdleTimer _idleTimer;
+
+private:
+    void executeRunnable(const Runnable &runnable);
 public:
     SimpleScheduler(const Runnable &idleCallback, const PosixDuration &idleDuration);
     SimpleScheduler();
