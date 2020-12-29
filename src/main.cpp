@@ -2,11 +2,47 @@
 
 #include "ApplicationService.h"
 
+#include "EventManager.h"
+
 using namespace boost;
 using namespace boost::system;
 
-
 int main() {
+    auto handler = std::make_shared<EventChannelHandler>();
+
+    EventManagerV1 v1;
+
+    v1.subscribe<EventActive>(handler);
+    v1.subscribe<EventInactive>(handler);
+    v1.subscribe<EventSubscribe>(handler);
+
+    v1.raiseEvent(EventActive{});
+    v1.raiseEvent(EventInactive{});
+
+    v1.raiseEvent(EventSubscribe{});
+
+    handler.reset();
+
+    v1.raiseEvent(EventSubscribe{});
+
+    std::cout << "---" << std::endl;
+
+    handler = std::make_shared<EventChannelHandler>();
+    EventManagerV2 v2;
+    v2.subscribe<EventSubscribe>(handler);
+    v2.subscribe<EventActive>(handler);
+    v2.subscribe<EventActive>([](const EventActive& event) -> bool {
+        std::cout << "LambdaEventHandler: " << event.name() << std::endl;
+        return false;
+    });
+
+
+    v2.raiseEvent(EventSubscribe{});
+    v2.raiseEvent(EventInactive{});
+    handler.reset();
+    v2.raiseEvent(EventActive{});
+
+    return 0;
     logging::Logger::init(logging::LoggerProperties{boost::log::trivial::info, true, false, ""});
 
     LOG(info) << "Start application";
