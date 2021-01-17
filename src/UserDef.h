@@ -23,4 +23,12 @@ typedef boost::posix_time::microseconds PosixMicroseconds;
 
 typedef const std::function<void()> Runnable;
 
+#define BOOST_THREAD_PROVIDES_FUTURE
+#define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
+#include <boost/thread/future.hpp>
+
+typedef boost::promise<ErrorCode> ErrorPromise;
+typedef boost::future<ErrorCode> ErrorFuture;
+
+
 #endif //BOOST_USERDEF_H
